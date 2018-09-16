@@ -1,0 +1,67 @@
+<DateCalendar current="{ current }" selected="{ selected }" getClass="{ getClass }" locale="{ locale }" isHighlighted="{ isHighlighted(hovered, second) }"
+  on:select="onSelect(event)" on:hover="onHover(event)"></DateCalendar>
+
+<script>
+  import { setupHigherCalendar, compareDateAsc } from './domain'
+  import { arrayfy } from './utils'
+  import DateCalendar from './DateCalendar.html'
+
+  function isHighlighted(hovered, isSecond) {
+    return (target, selected) => {
+      const [first, second] = arrayfy(selected)
+      const list = [
+        first,
+        target,
+        isSecond ? hovered : second
+      ]
+        .filter(x => x)
+        .sort(compareDateAsc)
+
+      return list.length === 3 && list[1] === target
+    }
+  }
+
+  export default {
+    setup: setupHigherCalendar(DateCalendar),
+
+    components: {
+      DateCalendar
+    },
+
+    helpers: {
+      isHighlighted
+    },
+
+    data() {
+      return {
+        second: false
+      }
+    },
+
+    methods: {
+      onSelect(date) {
+        const { second: isSecond, selected: _prevSelected } = this.get()
+        const index = isSecond ? 1 : 0
+        const prevSelected = arrayfy(_prevSelected)
+        const selected = prevSelected.slice(0, index)
+          .concat(date)
+          .sort(compareDateAsc)
+
+        this.set({
+          selected,
+          second: !isSecond
+        })
+
+        this.fire('select', selected)
+      },
+
+      onHover(date) {
+        this.set({
+          hovered: date
+        })
+
+        this.fire('hover', date)
+      }
+    }
+  }
+</script>

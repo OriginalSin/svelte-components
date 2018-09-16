@@ -1,0 +1,46 @@
+{
+  "name": "svelte-components",
+  "description": "Geomixer UI components for Svelte.js",
+  "version": "0.1.1",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OriginalSin/svelte-components.git"
+  },
+  "author": "Serg Alekseev <serg@auchat.ru>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/OriginalSin/svelte-components/issues"
+  },
+  "homepage": "https://github.com/OriginalSin/svelte-components#readme",
+  "devDependencies": {
+    "npm-run-all": "^4.1.3",
+    "rollup": "^0.64.1",
+    "rollup-plugin-commonjs": "^9.1.5",
+    "rollup-plugin-node-resolve": "^3.0.3",
+    "rollup-plugin-svelte": "^4.2.1",
+    "rollup-plugin-terser": "^1.0.1",
+    "sirv-cli": "^0.2.0",
+    "svelte": "^2.10.1"
+  },
+  "main": "dist/index.js",
+  "module": "dist/module.js",
+  "svelte": "src/index.js",
+  "svelte.root": "src",
+  "scripts": {
+    "clean": "del /F /S /Q dist",
+    "dev": "run-p start:dev autobuild",
+    "dev:examples": "run-p start:dev examples",
+    "start:dev": "sirv . --dev",
+    "autobuild": "rollup -c rollup.config.dev.js -w",
+    "prepublishOnly": "npm run build",
+    "examples": "rollup -c rollup.config.examples.js -w",
+    "build": "npm run clean & rollup -c"
+  },
+  "keywords": [
+    "javascript",
+    "svelte",
+    "geomixer",
+    "svelte-components",
+    "ui"
+  ]
+}

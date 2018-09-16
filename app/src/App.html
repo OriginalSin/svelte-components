@@ -1,0 +1,96 @@
+<ul class="pagination">
+	{#if total > show}
+		<li class="{isBegin ? 'disabled' : ''}" on:click="gotoPage(1)">«</li>
+		<li class="{isBegin ? 'disabled' : ''}" on:click="gotoPage(current - 1)">‹</li>
+	{/if}
+	{#each items as it}
+		<li class="{it.active ? 'active' : ''} {it.nm > 0 ? '' : 'disabled'}"
+			on:click="gotoPage(it.nm)"
+		>{it.nm}
+		</li>
+	{/each}
+	{#if total > show}
+		<li class="{isEnd ? 'disabled' : ''}" on:click="gotoPage(current + 1)"><span>›</span></li>
+		<li class="{isEnd ? 'disabled' : ''}" on:click="gotoPage(total)"><span>»</span></li>
+	{/if}
+</ul>
+
+<script>
+	const loc = window.location;
+
+	export default {
+		data() {
+			return {
+				hashLang: {},
+				show: 5,
+				total: 20,
+				current: 1
+			}
+		},
+        computed: {
+            isBegin: ({current}) => {
+                return current < 2;
+            },
+            isEnd: ({current, total}) => {
+                return current >= total;
+            },
+            items: ({current, total, show}) => {
+				let arr = [],
+					d = Math.floor(show / 2),
+					b = current > total - d ? total - show + 1 : (current > d ? current - d: 1);
+				for(let i = 0; i < show; i++) {
+					let c = b + i,
+						disabled = (i === 0 && c >= d && c < current) ||
+							(i === show -1 && c <= total - d + 1);
+					arr.push({
+						nm: disabled ? '…' : c,
+						disabled: disabled,
+						active: current === c
+					});
+				}
+				return arr;
+            }
+        },        
+	
+		methods: {
+			gotoPage(nm) {
+				if (typeof(nm) === 'number') {
+					let {total} = this.get();
+					this.set({current: nm > total ? total : (nm < 1 ? 1 : nm)});
+				}
+			}
+		}
+
+	}
+</script>
+
+<style>
+.pagination {
+    display: -ms-flexbox;
+    display: flex;
+    padding-left: 0;
+    list-style: none;
+    border-radius: .25rem;
+}
+li {
+    position: relative;
+    display: block;
+	user-select: none;
+    padding: 8px 12px;
+    padding: .5rem .75rem;
+    margin-left: -1px;
+    line-height: 1.25;
+    color: #007bff;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+}
+li:not(:disabled):not(.disabled) {
+    cursor: pointer;
+}
+li.active {
+    z-index: 1;
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;
+}
+</style>

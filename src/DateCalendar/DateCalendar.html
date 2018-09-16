@@ -1,0 +1,142 @@
+<div class="date-calendar">
+  {#if locale}
+  <CalendarHeader locale="{ locale }" year="{ current.year }" month="{ current.month }" />
+
+  <table class="date-calendar-table">
+    <thead>
+      <tr>
+        {#each locale.weekDays as weekDay, i}
+        <th scope="col" class="date-calendar-cell heading { weekClass(i) }">
+          { format(weekDay) }
+        </th>
+        {/each}
+      </tr>
+    </thead>
+
+    <tbody on:mouseleave="onHoverOut()">
+      {#each calendar as row}
+      <tr>
+        {#each row as cell, i}
+        <td class="date-calendar-cell { weekClass(i) } { getClass && cell ? getClass(cell) : '' }">
+          {#if cell}
+          <CellButton selected="{ isSelected(cell, selected) }" highlighted="{ isHighlighted(cell, selected) }" on:click="onClickCell(cell)"
+            on:mouseenter="onHoverCell(cell)">
+            { cell.getDate() }
+          </CellButton>
+          {/if}
+        </td>
+        {/each}
+      </tr>
+      {/each}
+    </tbody>
+  </table>
+  {/if}
+</div>
+
+<script>
+  import { no, arrayfy, format } from './utils'
+  import { setupCalendar, getDateCalendar, equalsDate } from './domain'
+  import CellButton from './CellButton.html'
+  import CalendarHeader from './CalendarHeader.html'
+
+  function isSelected(date, selected) {
+    return arrayfy(selected).reduce((acc, s) => {
+      return acc || equalsDate(date, s)
+    }, false)
+  }
+
+  function weekClass(week) {
+    if (week === 0) {
+      return 'sunday'
+    }
+
+    if (week === 6) {
+      return 'saturday'
+    }
+
+    return ''
+  }
+
+  export default {
+    setup: setupCalendar,
+
+    components: {
+      CellButton,
+      CalendarHeader
+    },
+
+    helpers: {
+      format,
+      isSelected,
+      weekClass
+    },
+
+    data() {
+      const today = new Date()
+
+      return {
+        current: {
+          year: today.getFullYear(),
+          month: today.getMonth()
+        },
+        isHighlighted: no
+      }
+    },
+
+    computed: {
+      calendar: ({ current }) => {
+        return getDateCalendar(current.year, current.month)
+      }
+    },
+
+    methods: {
+      onClickCell(date) {
+        if (!date) return
+        this.fire('select', date)
+      },
+
+      onHoverCell(date) {
+        this.fire('hover', date)
+      },
+
+      onHoverOut() {
+        this.fire('hover', null)
+      }
+    },
+
+    oncreate() {
+      const { locale } = this.get()
+      if (!locale) {
+        this.set({
+          locale: this.constructor.locale
+        })
+      }
+    }
+  }
+</script>
+
+<style>
+  .date-calendar {
+    width: calc(var(--date-calendar-cell-size) * 7);
+  }
+
+  .date-calendar-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+  }
+
+  .date-calendar-cell {
+    padding: 0;
+    height: var(--date-calendar-cell-size);
+    width: var(--date-calendar-cell-size);
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  .date-calendar-cell.heading {
+    height: calc(var(--date-calendar-cell-size) * 0.6);
+    font-weight: bold;
+    font-size: 0.8em;
+  }
+</style>
